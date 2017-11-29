@@ -28,13 +28,26 @@ public class UserFollow {
     //这里的多对一是：User对应多个UserFollow
     //optional 不可选，必须存储，一条关注记录一定要有一个“你”
     @ManyToOne(optional = false)
+    //定义关联的表字段名为originId，对应的是User.Id
+    //TODO 如何实现的对应
+    //定义的是数据库中的存储字段
+    @JoinColumn(name = "originId")
     private User origin;
+    //把这个列提取到Model中,不允许为空，不允许更新，插入
+    @Column(nullable = false,updatable = false,insertable = false)
+    private String originId;
 
     //定义关注的目标，你关注的人
     //也是多对一，你可以被很多人关注吗，每次一关注都是一条记录
     //所有就是 多个UserFollow 对应一个 User的情况
     @ManyToOne(optional = false)
+    //定义关联的表字段名为targetId，对应的是User.Id
+    //定义的是数据库中的存储字段
+    @JoinColumn(name = "targetId")
     private User target;
+    //把这个列提取到Model中,不允许为空，不允许更新，插入
+    @Column(nullable = false,updatable = false,insertable = false)
+    private String targetId;
 
     //别名，也就是对target的备注名
     @Column
