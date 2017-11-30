@@ -41,9 +41,24 @@ public class Message {
     @Column(nullable = false)
     private int type;
 
+    //发送者，多个消息对应一个发送者
+    //ManyToOne Many代表当前类，即Message，One代表User
+    @JoinColumn(name = "senderId")
+    @ManyToOne(optional = false)
     private User sender;
+    // 不能自己修改，不能自己插入
+    // 这个字段仅仅只是为了对应sender的数据库字段senderId
+    // 不允许手动的更新或插入
+    @Column(updatable = false,insertable = false)
+    private String senderId;
 
+    //接收者，可为空，多个消息对应一个接收者
+    @ManyToOne
+    @JoinColumn(name = "receiverId")
     private User receiver;
+    @Column(updatable = false,insertable = false)
+    private String receiverId;
+
 
     // 定义为创建时间戳，在创建时就已经写入
     @CreationTimestamp
@@ -118,5 +133,21 @@ public class Message {
 
     public void setUpdateAt(LocalDateTime updateAt) {
         this.updateAt = updateAt;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 }
