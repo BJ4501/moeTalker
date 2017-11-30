@@ -1,6 +1,6 @@
 package com.bj.web.moetalker.push.service;
 
-import com.bj.web.moetalker.push.bean.User;
+import com.bj.web.moetalker.push.bean.db.User;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
