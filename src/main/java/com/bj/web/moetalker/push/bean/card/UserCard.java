@@ -1,5 +1,6 @@
 package com.bj.web.moetalker.push.bean.card;
 
+import com.bj.web.moetalker.push.bean.db.User;
 import com.google.gson.annotations.Expose;
 
 import java.time.LocalDateTime;
@@ -30,6 +31,18 @@ public class UserCard {
     @Expose
     //用户信息最后的更新时间
     private LocalDateTime modifyAt;
+
+    public UserCard(final User user) {
+        this.id = user.getId();
+        this.name = user.getName();
+        this.phone = user.getPhone();
+        this.portrait = user.getPortrait();
+        this.desc = user.getDescription();
+        this.sex = user.getSex();
+        this.modifyAt = user.getUpdateAt();
+
+        //TODO 得到关注人和粉丝的数量
+    }
 
     public String getId() {
         return id;
