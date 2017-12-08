@@ -1,6 +1,7 @@
 package com.bj.web.moetalker.push;
 
 
+import com.bj.web.moetalker.push.provider.GsonProvider;
 import com.bj.web.moetalker.push.service.AccountService;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -15,7 +16,9 @@ public class Application extends ResourceConfig {
         packages(AccountService.class.getPackage().getName());
 
         //注册Json转换器
-        register(JacksonJsonProvider.class);
+        //register(JacksonJsonProvider.class);
+        //使用Gson解析器
+        register(GsonProvider.class);
         //注册日志打印输出
         register(Logger.class);
 
