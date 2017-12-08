@@ -63,4 +63,79 @@ public class Hib {
             sessionFactory.close();
         }
     }
+
+    //无返回值
+    public interface QueryOnly{
+        void query(Session session);
+    }
+
+    /**
+     * 简化Session事务操作的一个工具方法
+     * @param query
+     */
+    public static void QueryOnly(QueryOnly query){
+        //重新开启一个Session
+        Session session = sessionFactory().openSession();
+        //开启事务
+        final Transaction transaction = session.beginTransaction();
+
+        try{
+            // 调用传递进来的接口，
+            // 并调用接口的方法把Session传递进去
+            query.query(session);
+            //提交
+            transaction.commit();
+        }catch (Exception e){
+            e.printStackTrace();
+            try {
+                //回滚
+                transaction.rollback();
+            }catch (RuntimeException e1){
+                e1.printStackTrace();
+            }
+        }finally {
+            //无论成功失败都要关闭Session
+            session.close();
+        }
+    }
+
+
+    //用于用户实际操作的接口，有返回值
+    public interface Query<T>{
+        T query(Session session);
+    }
+    /**
+     * 简化Session事务操作的一个工具方法
+     * 具有一个返回值
+     * @param query
+     * @param <T>
+     * @return
+     */
+    public static<T> T query(Query<T> query){
+        //重新开启一个Session
+        Session session = sessionFactory().openSession();
+        //开启事务
+        final Transaction transaction = session.beginTransaction();
+
+        T t = null;
+        try{
+            // 调用传递进来的接口，
+            // 并调用接口的方法把Session传递进去
+            t = query.query(session);
+            //提交
+            transaction.commit();
+        }catch (Exception e){
+            e.printStackTrace();
+            try {
+                //回滚
+                transaction.rollback();
+            }catch (RuntimeException e1){
+                e1.printStackTrace();
+            }
+        }finally {
+            //无论成功失败都要关闭Session
+            session.close();
+        }
+        return t;
+    }
 }
