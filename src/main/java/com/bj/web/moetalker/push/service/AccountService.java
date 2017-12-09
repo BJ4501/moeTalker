@@ -20,7 +20,7 @@ import javax.ws.rs.core.MediaType;
 
 //真实访问路径---> localhost/api/account
 @Path("/account")
-public class AccountService {
+public class AccountService extends BaseService{
 
     /**
      * 登录
@@ -110,21 +110,17 @@ public class AccountService {
     @Produces(MediaType.APPLICATION_JSON)
     //从请求头中获取token字段
     //pushId从url地址中获取
-    public ResponseModel<AccountRspModel> login(@HeaderParam("token") String token,
+    //被拦截器拦截下了token 所以不需要在这里判断Token了
+    public ResponseModel<AccountRspModel> login(/*@HeaderParam("token") String token,*/
                                                 @PathParam("pushId") String pushId){
-        if(Strings.isNullOrEmpty(token)||Strings.isNullOrEmpty(pushId)){
+        if(/*Strings.isNullOrEmpty(token)||*/Strings.isNullOrEmpty(pushId)){
             //返回参数异常
             return ResponseModel.buildParameterError();
         }
 
         //拿到自己的个人信息
-        User user = UserFactory.findByToken(token);
-        if(user != null){
-            return bind(user,pushId);
-        }else {
-            //Token失效，所以无法进行绑定
-            return ResponseModel.buildAccountError();
-        }
+        User self = getSelf();
+        return bind(self,pushId);
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.bj.web.moetalker.push;
 
 
+import com.bj.web.moetalker.push.provider.AuthRequestFilter;
 import com.bj.web.moetalker.push.provider.GsonProvider;
 import com.bj.web.moetalker.push.service.AccountService;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -14,6 +15,9 @@ public class Application extends ResourceConfig {
         //两种写法
         //packages("com.bj.web.moetalker.push.service");
         packages(AccountService.class.getPackage().getName());
+
+        //注册全局请求拦截器
+        register(AuthRequestFilter.class);
 
         //注册Json转换器
         //register(JacksonJsonProvider.class);
