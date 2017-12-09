@@ -1,5 +1,6 @@
 package com.bj.web.moetalker.push.bean.api.account;
 
+import com.google.common.base.Strings;
 import com.google.gson.annotations.Expose;
 
 public class LoginModel {
@@ -8,6 +9,8 @@ public class LoginModel {
     private String account;
     @Expose
     private String password;
+    @Expose
+    private String pushId;
 
     public String getAccount() {
         return account;
@@ -23,5 +26,24 @@ public class LoginModel {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPushId() {
+        return pushId;
+    }
+
+    public void setPushId(String pushId) {
+        this.pushId = pushId;
+    }
+
+    /**
+     * 校验
+     * @param model
+     * @return
+     */
+    public static boolean check(LoginModel model){
+        return model != null
+                && !Strings.isNullOrEmpty(model.account)
+                && !Strings.isNullOrEmpty(model.password);
     }
 }

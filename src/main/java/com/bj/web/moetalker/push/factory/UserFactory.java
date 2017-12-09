@@ -3,8 +3,10 @@ package com.bj.web.moetalker.push.factory;
 import com.bj.web.moetalker.push.bean.db.User;
 import com.bj.web.moetalker.push.utils.Hib;
 import com.bj.web.moetalker.push.utils.TextUtil;
+import com.google.common.base.Strings;
 import org.hibernate.Session;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -12,6 +14,23 @@ import java.util.UUID;
  */
 
 public class UserFactory {
+
+    /**
+     * 通过Token找到User用户信息
+     * 只能自己使用，查询的信息是个人信息，不能是他人信息
+     * @param token Token
+     * @return User
+     */
+    public static User findByToken(String token){
+        //TODO lambda
+        return Hib.query(new Hib.Query<User>() {
+            @Override
+            public User query(Session session) {
+                return (User) session.createQuery("from User where token=:inToken")
+                        .setParameter("inToken",token).uniqueResult();
+            }
+        });
+    }
 
     /**
      * 查询Phone是否重复--通过Phone找到User
@@ -44,6 +63,56 @@ public class UserFactory {
             }
         });
     }
+
+    /**
+     * 给当前的账户绑定PushId
+     * @param user 自己的User
+     * @param pushId 自己设备的PushId
+     * @return User
+     */
+    public static User bindPushId(User user,String pushId){
+        //1.查询是否有其他账户绑定了这个设备
+        // 取消绑定，避免推送混乱
+        // lower忽略大小写
+        Hib.queryOnly(session -> {
+            @SuppressWarnings("unchecked")
+            List<User> userList = (List<User>) session
+                    .createQuery("from User where lower(pushId)=:inpushId and id !=:userId")
+                    .setParameter("inpushId",pushId.toLowerCase())
+                    .setParameter("userId",user.getId())
+                    .list();
+
+            for (User u : userList) {
+                //更新为null
+                u.setPushId(null);
+                session.saveOrUpdate(u);
+            }
+        });
+
+        //2.
+
+        if (pushId.equalsIgnoreCase(user.getPushId())){
+            //如果当前需要绑定的设备Id，之前已经绑定过了
+            //那么不需要额外绑定
+            return user;
+        }else {
+            //如果我当前账户之前的设备Id，和需要绑定的不同
+            //那么需要单点登录，让之前的设备退出账户，给之前的设备推送一条退出消息
+            if (Strings.isNullOrEmpty(user.getPushId())){
+                //TODO 推送一个退出消息
+            }
+            //更新新的设备Id
+            user.setPushId(pushId);
+            return Hib.query(session -> {
+                session.saveOrUpdate(user);
+                return user;
+            });
+        }
+    }
+
+
+
+
 
     /**
      * 使用账户和密码进行登录

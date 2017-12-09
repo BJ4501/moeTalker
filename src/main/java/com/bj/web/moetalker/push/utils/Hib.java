@@ -73,7 +73,7 @@ public class Hib {
      * 简化Session事务操作的一个工具方法
      * @param query
      */
-    public static void QueryOnly(QueryOnly query){
+    public static void queryOnly(QueryOnly query){
         //重新开启一个Session
         Session session = sessionFactory().openSession();
         //开启事务
