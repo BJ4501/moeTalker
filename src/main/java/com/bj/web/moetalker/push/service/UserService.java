@@ -1,11 +1,13 @@
 package com.bj.web.moetalker.push.service;
 
 import com.bj.web.moetalker.push.bean.api.account.AccountRspModel;
+import com.bj.web.moetalker.push.bean.api.base.PushModel;
 import com.bj.web.moetalker.push.bean.api.base.ResponseModel;
 import com.bj.web.moetalker.push.bean.api.user.UpdateInfoModel;
 import com.bj.web.moetalker.push.bean.card.UserCard;
 import com.bj.web.moetalker.push.bean.db.User;
 import com.bj.web.moetalker.push.factory.UserFactory;
+import com.bj.web.moetalker.push.utils.PushDispatcher;
 import com.google.common.base.Strings;
 
 import javax.ws.rs.*;
@@ -58,6 +60,7 @@ public class UserService extends BaseService{
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseModel<List<UserCard>> contact(){
         User self = getSelf();
+
         //拿到我的联系人
         List<User> users = UserFactory.contacts(self);
         //map操作，相当于转置操作，User->UserCard
