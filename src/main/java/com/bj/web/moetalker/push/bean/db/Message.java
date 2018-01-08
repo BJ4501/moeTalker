@@ -1,6 +1,7 @@
 package com.bj.web.moetalker.push.bean.db;
 
 
+import com.bj.web.moetalker.push.bean.api.message.MessageCreateModel;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -11,6 +12,10 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "MT_MESSAGE")
 public class Message {
+    //发送给人的
+    public static final int RECEIVER_TYPE_NONE = 1;
+    //发送给群的
+    public static final int RECEIVER_TYPE_GROUP = 2;
 
     public static final int TYPE_STR = 1;//字符串类型
     public static final int TYPE_PIC = 2;//图片类型
@@ -76,6 +81,32 @@ public class Message {
     @UpdateTimestamp
     @Column(nullable = false)
     private LocalDateTime updateAt = LocalDateTime.now();
+
+    public Message(){}
+
+    /**
+     * 人与人之间发送的构造函数
+     */
+    public Message(User sender, User receiver, MessageCreateModel model){
+        this.id = model.getId();
+        this.content = model.getContent();
+        this.attach = model.getAttach();
+        this.type = model.getType();
+        this.sender = sender;
+        this.receiver = receiver;
+    }
+
+    /**
+     * 发送给群的构造函数
+     */
+    public Message(User sender, Group group, MessageCreateModel model){
+        this.id = model.getId();
+        this.content = model.getContent();
+        this.attach = model.getAttach();
+        this.type = model.getType();
+        this.sender = sender;
+        this.group = group;
+    }
 
 
     public String getId() {
