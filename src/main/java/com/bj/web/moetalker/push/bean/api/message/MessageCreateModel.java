@@ -27,10 +27,6 @@ public class MessageCreateModel {
     @Expose
     private int type = Message.TYPE_STR;
 
-    //发送者，不为空
-    @Expose
-    private String senderId;
-
     //接收者，可为空
     @Expose
     private String receiverId;
@@ -71,14 +67,6 @@ public class MessageCreateModel {
         this.type = type;
     }
 
-    public String getSenderId() {
-        return senderId;
-    }
-
-    public void setSenderId(String senderId) {
-        this.senderId = senderId;
-    }
-
     public String getReceiverId() {
         return receiverId;
     }
@@ -100,7 +88,6 @@ public class MessageCreateModel {
         // 并且只需要具有一个及其以上的参数即可
         return model != null
                 && !(Strings.isNullOrEmpty(model.id)
-                ||Strings.isNullOrEmpty(model.senderId)
                 ||Strings.isNullOrEmpty(model.content)
                 ||Strings.isNullOrEmpty(model.receiverId))
                 //需要满足只能是这两种接收者类型

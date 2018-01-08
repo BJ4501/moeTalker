@@ -7,6 +7,7 @@ import com.bj.web.moetalker.push.bean.card.UserCard;
 import com.bj.web.moetalker.push.bean.db.Group;
 import com.bj.web.moetalker.push.bean.db.Message;
 import com.bj.web.moetalker.push.bean.db.User;
+import com.bj.web.moetalker.push.factory.GroupFactory;
 import com.bj.web.moetalker.push.factory.MessageFactory;
 import com.bj.web.moetalker.push.factory.PushFactory;
 import com.bj.web.moetalker.push.factory.UserFactory;
@@ -62,9 +63,16 @@ public class MessageService extends BaseService{
 
     //发送到群
     private ResponseModel<MessageCard> pushToGroup(User sender, MessageCreateModel model) {
-        //Group group = GroupFactory.findById();
-        //TODO Group
-        return null;
+        //该用户需要在群里面才可以，获取群的信息（权限控制）
+        Group group = GroupFactory.findById(sender, model.getReceiverId());
+        if (group == null)
+            return ResponseModel.buildNotFoundUserError("未找到接收者群，可能你不是该群的成员");
+
+        //添加到数据库
+        Message message = MessageFactory.add(sender,group,model);
+
+        //通用的推送逻辑
+        return buildAndPushResponse(sender,message);
     }
 
     //推送并构建一个返回信息
