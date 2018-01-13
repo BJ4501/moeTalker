@@ -5,6 +5,7 @@ import com.bj.web.moetalker.push.bean.db.Group;
 import com.bj.web.moetalker.push.bean.db.GroupMember;
 import com.bj.web.moetalker.push.bean.db.User;
 import com.bj.web.moetalker.push.utils.Hib;
+import com.google.common.base.Strings;
 
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,17 @@ public class GroupFactory {
         });
     }
 
+    //获取一个人加入的所有群
+    public static Set<GroupMember> getMembers(User user) {
+        return Hib.query(session -> {
+            @SuppressWarnings("unchecked")
+            List<GroupMember> members = session.createQuery("from GroupMember where userId=:userId")
+                    .setParameter("userId",user.getId())
+                    .list();
+            return new HashSet<>(members);
+        });
+    }
+
     //创建群
     public static Group create(User creator, GroupCreateModel model, List<User> users) {
         return Hib.query(session -> {
@@ -80,5 +92,36 @@ public class GroupFactory {
                 .setParameter("groupId",groupId)
                 .setMaxResults(1)
                 .uniqueResult());
+    }
+
+    //查询
+    @SuppressWarnings("unchecked")
+    public static List<Group> search(String name) {
+        if (Strings.isNullOrEmpty(name))
+            name = ""; //保证不能为null的情况,减少后面的判断和额外的错误
+        final String searchName = "%"+name+"%"; //模糊匹配
+
+        return Hib.query(session -> {
+            //查询的条件：name忽略大小写，并且使用like(模糊查询)，头像和描述必须完善才能查询到
+            return (List<Group>) session.createQuery("from Group where lower(name) like :name")
+                    .setParameter("name",searchName)
+                    .setMaxResults(20)//至多20条
+                    .list();
+        });
+
+    }
+
+    //给群添加成员
+    public static Set<GroupMember> addMembers(Group group, List<User> insertUsers) {
+        return Hib.query(session -> {
+            Set<GroupMember> members = new HashSet<>();
+            for (User user : insertUsers) {
+                GroupMember member = new GroupMember(user,group);
+                //保存，并没有提交到数据库
+                session.save(member);
+                members.add(member);
+            }
+            return members;
+        });
     }
 }

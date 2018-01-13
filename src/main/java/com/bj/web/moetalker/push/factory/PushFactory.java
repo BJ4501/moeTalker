@@ -1,6 +1,7 @@
 package com.bj.web.moetalker.push.factory;
 
 import com.bj.web.moetalker.push.bean.api.base.PushModel;
+import com.bj.web.moetalker.push.bean.card.GroupMemberCard;
 import com.bj.web.moetalker.push.bean.card.MessageCard;
 import com.bj.web.moetalker.push.bean.db.*;
 import com.bj.web.moetalker.push.utils.Hib;
@@ -122,7 +123,20 @@ public class PushFactory {
         }
     }
 
-    public static void pushGroupAdd(Set<GroupMember> members) {
+    /**
+     * 通知一些成员，被加入了XXX群
+     * @param members 被加入群的成员
+     */
+    public static void pushJoinGroup(Set<GroupMember> members) {
         //TODO 给群成员发送，已经被添加的消息
+    }
+
+    /**
+     * 通知老成员，有一系列新的成员加入到某个群
+     * @param oldMembers 老的成员
+     * @param insertCards 新的成员的信息集合
+     */
+    public static void pushGroupMemberAdd(Set<GroupMember> oldMembers, List<GroupMemberCard> insertCards) {
+
     }
 }
