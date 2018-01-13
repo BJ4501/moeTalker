@@ -121,4 +121,8 @@ public class PushFactory {
             dispatcher.add(receiver,pushModel);
         }
     }
+
+    public static void pushGroupAdd(Set<GroupMember> members) {
+        //TODO 给群成员发送，已经被添加的消息
+    }
 }
