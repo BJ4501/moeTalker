@@ -40,7 +40,7 @@ public class GroupService extends BaseService{
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseModel<GroupCard> create(GroupCreateModel model){
-        if (GroupCreateModel.check(model)){
+        if (!GroupCreateModel.check(model)){
             return ResponseModel.buildParameterError();
         }
 
@@ -185,7 +185,7 @@ public class GroupService extends BaseService{
      * @return 成员列表
      */
     @GET
-    @Path("/{groupId}/members") //http:.../api/group/0000-0000-0000/member
+    @Path("/{groupId}/member") //http:.../api/group/0000-0000-0000/member
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ResponseModel<List<GroupMemberCard>> members(@PathParam("groupId") String groupId){

@@ -3,6 +3,7 @@ package com.bj.web.moetalker.push.factory;
 import com.bj.web.moetalker.push.bean.api.base.PushModel;
 import com.bj.web.moetalker.push.bean.card.GroupMemberCard;
 import com.bj.web.moetalker.push.bean.card.MessageCard;
+import com.bj.web.moetalker.push.bean.card.UserCard;
 import com.bj.web.moetalker.push.bean.db.*;
 import com.bj.web.moetalker.push.utils.Hib;
 import com.bj.web.moetalker.push.utils.PushDispatcher;
@@ -128,7 +129,43 @@ public class PushFactory {
      * @param members 被加入群的成员
      */
     public static void pushJoinGroup(Set<GroupMember> members) {
-        //TODO 给群成员发送，已经被添加的消息
+        //发送者
+        PushDispatcher dispatcher = new PushDispatcher();
+        //一个历史记录列表
+        List<PushHistory> histories = new ArrayList<>();
+
+        for (GroupMember member : members) {
+            User receiver = member.getUser();
+            if (receiver == null)
+                return;
+            //每个成员的信息卡片
+            GroupMemberCard memberCard = new GroupMemberCard(member);
+            String entity = TextUtil.toJson(memberCard);
+
+            //历史记录表字段建立
+            PushHistory history = new PushHistory();
+            //你被添加到群的类型
+            history.setEntityType(PushModel.ENTITY_TYPE_ADD_GROUP);
+            history.setEntity(entity);
+            history.setReceiver(receiver);
+            history.setReceiverPushId(receiver.getPushId());
+            histories.add(history);
+            //构建一个消息Model
+            PushModel pushModel = new PushModel()
+                    .add(history.getEntityType(),history.getEntity());
+            //添加到发送者的数据集中
+            dispatcher.add(receiver,pushModel);
+            histories.add(history);
+        }
+
+        //保存到数据库的操作
+        Hib.queryOnly(session -> {
+            for (PushHistory history : histories) {
+                session.saveOrUpdate(history);
+            }
+        });
+        //提交发送
+        dispatcher.submit();
     }
 
     /**
@@ -137,6 +174,78 @@ public class PushFactory {
      * @param insertCards 新的成员的信息集合
      */
     public static void pushGroupMemberAdd(Set<GroupMember> oldMembers, List<GroupMemberCard> insertCards) {
+        //发送者
+        PushDispatcher dispatcher = new PushDispatcher();
+        //一个历史记录列表
+        List<PushHistory> histories = new ArrayList<>();
+        //当前新增的用户的集合的Json字符串
+        String entity = TextUtil.toJson(insertCards);
 
+        //进行循环添加，给每一个老的用户oldMembers构建一个消息，消息的内容为新增的用户的集合
+        // 通知的类型是：群成员添加了的类型ENTITY_TYPE_ADD_GROUP_MEMBERS
+        addGroupMembersPushModel(dispatcher,histories,oldMembers,entity,PushModel.ENTITY_TYPE_ADD_GROUP_MEMBERS);
+
+        //保存到数据库的操作
+        Hib.queryOnly(session -> {
+            for (PushHistory history : histories) {
+                session.saveOrUpdate(history);
+            }
+        });
+        //提交发送
+        dispatcher.submit();
+
+    }
+
+    /**
+     * 推送账户退出消息
+     * @param receiver 接收者
+     * @param pushId 这个时刻，接收者的设备Id
+     */
+    public static void pushLogout(User receiver, String pushId) {
+        //历史记录表字段建立
+        PushHistory history = new PushHistory();
+        //你被添加到群的类型
+        history.setEntityType(PushModel.ENTITY_TYPE_LOGOUT);
+        history.setEntity("Account Logout!");
+        history.setReceiver(receiver);
+        history.setReceiverPushId(pushId);
+        //保存到历史记录表
+        Hib.queryOnly(session -> session.save(history));
+
+        //发送者
+        PushDispatcher dispatcher = new PushDispatcher();
+        //具体推送的内容
+        PushModel pushModel = new PushModel()
+                .add(history.getEntityType(),history.getEntity());
+        //添加并提交到第三方推送
+        dispatcher.add(receiver,pushModel);
+        dispatcher.submit();
+    }
+
+    /**
+     * 给一个朋友推送我的信息过去，
+     * 类型是：我关注了他
+     * @param receiver 接收者
+     * @param userCard 我的Card信息
+     */
+    public static void pushFollow(User receiver, UserCard userCard) {
+        //一定是相互关注了
+        userCard.setIsFollow(true);
+        String entity = TextUtil.toJson(userCard);
+
+        PushHistory history = new PushHistory();
+        //你被添加到群的类型
+        history.setEntityType(PushModel.ENTITY_TYPE_ADD_FRIEND);
+        history.setEntity(entity);
+        history.setReceiver(receiver);
+        history.setReceiverPushId(receiver.getPushId());
+        //保存到历史记录表
+        Hib.queryOnly(session -> session.save(history));
+
+        PushDispatcher dispatcher = new PushDispatcher();
+        PushModel pushModel = new PushModel()
+                .add(history.getEntityType(),history.getEntity());
+        dispatcher.add(receiver,pushModel);
+        dispatcher.submit();
     }
 }

@@ -29,7 +29,7 @@ public class UserFollow {
     //optional 不可选，必须存储，一条关注记录一定要有一个“你”
     @ManyToOne(optional = false)
     //定义关联的表字段名为originId，对应的是User.Id
-    //TODO 如何实现的对应
+    //fixme 如何实现的对应
     //定义的是数据库中的存储字段
     @JoinColumn(name = "originId")
     private User origin;

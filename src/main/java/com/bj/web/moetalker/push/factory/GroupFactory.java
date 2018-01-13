@@ -121,6 +121,14 @@ public class GroupFactory {
                 session.save(member);
                 members.add(member);
             }
+            //解决外键添加问题：
+            // 1.进行数据刷新
+            /*for (GroupMember member : members) {
+                //进行刷新，会进行关联查询，在循环中消耗较高
+                session.refresh(member);
+            }*/
+            //2.
+
             return members;
         });
     }

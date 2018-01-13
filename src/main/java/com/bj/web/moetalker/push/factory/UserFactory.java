@@ -25,7 +25,7 @@ public class UserFactory {
      * @return User
      */
     public static User findByToken(String token){
-        //TODO lambda
+        //lambda
         return Hib.query(new Hib.Query<User>() {
             @Override
             public User query(Session session) {
@@ -41,7 +41,6 @@ public class UserFactory {
      * @return
      */
     public static User findByPhone(String phone){
-        //TODO lambda
         return Hib.query(session -> (User) session
                 .createQuery("from User where phone=:inPhone")
                 .setParameter("inPhone", phone)
@@ -61,7 +60,6 @@ public class UserFactory {
      * @return
      */
     public static User findByName(String name){
-        //TODO lambda
         return Hib.query(new Hib.Query<User>() {
             @Override
             public User query(Session session) {
@@ -125,7 +123,9 @@ public class UserFactory {
             //如果我当前账户之前的设备Id，和需要绑定的不同
             //那么需要单点登录，让之前的设备退出账户，给之前的设备推送一条退出消息
             if (Strings.isNullOrEmpty(user.getPushId())){
-                //TODO 推送一个退出消息
+                //推送一个退出消息
+                PushFactory.pushLogout(user, user.getPushId());
+
             }
             //更新新的设备Id
             user.setPushId(pushId);

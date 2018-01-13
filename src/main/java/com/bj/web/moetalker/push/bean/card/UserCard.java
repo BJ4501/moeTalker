@@ -1,7 +1,9 @@
 package com.bj.web.moetalker.push.bean.card;
 
 import com.bj.web.moetalker.push.bean.db.User;
+import com.bj.web.moetalker.push.utils.Hib;
 import com.google.gson.annotations.Expose;
+import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 
@@ -46,7 +48,18 @@ public class UserCard {
         this.modifyAt = user.getUpdateAt();
         this.isFollow = isFollow;
 
-        //TODO 得到关注人和粉丝的数量
+        //得到关注人和粉丝的数量
+        //如果使用user.getFollowers.size()
+        //懒加载会报错，因为没有session
+        Hib.queryOnly(session -> {
+            //重新加载一次用户信息
+            session.load(user,user.getId());
+            //这个时候仅仅只是进行了数量查询，并没有查询整个集合
+            //要查询集合，必须在session存在的情况下进行遍历
+            //或者使用Hibernate.initialize(user.getFollowers());
+            follows = user.getFollowers().size();
+            following = user.getFollowing().size();
+        });
     }
 
     public String getId() {

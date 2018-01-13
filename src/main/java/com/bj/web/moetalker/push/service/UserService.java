@@ -6,6 +6,7 @@ import com.bj.web.moetalker.push.bean.api.base.ResponseModel;
 import com.bj.web.moetalker.push.bean.api.user.UpdateInfoModel;
 import com.bj.web.moetalker.push.bean.card.UserCard;
 import com.bj.web.moetalker.push.bean.db.User;
+import com.bj.web.moetalker.push.factory.PushFactory;
 import com.bj.web.moetalker.push.factory.UserFactory;
 import com.bj.web.moetalker.push.utils.PushDispatcher;
 import com.google.common.base.Strings;
@@ -98,7 +99,9 @@ public class UserService extends BaseService{
             //关注失败，返回服务器异常
             return ResponseModel.buildServiceError();
         }
-        //TODO 通知我关注的人我关注了他
+        //通知我关注的人我关注了他
+        //给他发送一个我的信息过去
+        PushFactory.pushFollow(followUser,new UserCard(self));
 
         //返回关注的人的信息
         return ResponseModel.buildOk(new UserCard(followUser,true));
@@ -162,7 +165,7 @@ public class UserService extends BaseService{
                     );
                     return new UserCard(user,isFollow);
                 }).collect(Collectors.toList());
-        //TODO 双重查询--低效，如果用户数量过多就不可以这么做。需要优化
+        //fixme 双重查询--低效，如果用户数量过多就不可以这么做。需要优化
         //返回
         return ResponseModel.buildOk(userCards);
     }
